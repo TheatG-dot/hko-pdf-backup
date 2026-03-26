@@ -3,7 +3,7 @@ on:
   schedule:
     # 每天在 UTC 03:05, 07:05, 11:05 執行
     # 對應香港時間 (HKT) 為 11:05, 15:05, 19:05
-    - cron: '5 3,7,11 * * *'
+    - cron: '5 * * * *'
   workflow_dispatch:
 
 concurrency:
