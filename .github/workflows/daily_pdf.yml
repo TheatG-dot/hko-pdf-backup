@@ -1,7 +1,8 @@
-name: Frequent HKO PDF Backup
+name: Hourly HKO PDF Backup
 on:
   schedule:
-    - cron: '*/10 * * * *'
+    # 每個小時的第 5 分鐘自動執行
+    - cron: '5 * * * *'
   workflow_dispatch:
 
 concurrency:
@@ -36,13 +37,11 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           
-          # 確保在提交前先同步遠端狀態
           git pull origin main --rebase
           
           git add *.pdf
           git commit -m "HKO Backup: $(date -d '+8 hours' +'%Y-%m-%d %H:%M')" || exit 0
           
-          # 使用循環重試機制推送，解決短時間內的競態衝突
           for i in {1..5}; do
             git push origin main && break || (git pull --rebase origin main && sleep 5)
           done
