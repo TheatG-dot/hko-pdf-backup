@@ -1,0 +1,49 @@
+name: Hourly HKO PDF Backup
+on:
+  schedule:
+    - cron: '10 * * * *' # 每小時的第 10 分鐘執行 (例如 HKT 18:10, 19:10)
+  workflow_dispatch: # 允許手動點擊測試
+
+# 併發控制：確保同一時間只有一個任務在推送到倉庫
+concurrency:
+  group: hko-backup
+  cancel-in-progress: false
+
+jobs:
+  capture_job:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip install playwright
+          playwright install chromium
+
+      - name: Run Capture Script
+        run: python capture.py
+
+      - name: Save to Repository
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # 確保在提交前先同步遠端狀態
+          git pull origin main --rebase
+          
+          git add *.pdf
+          git commit -m "HKO Backup: $(date -d '+8 hours' +'%Y-%m-%d %H:%M')" || exit 0
+          
+          # 使用循環重試機制推送，解決短時間內的競態衝突
+          for i in {1..5}; do
+            git push origin main && break || (git pull --rebase origin main && sleep 5)
+          done
