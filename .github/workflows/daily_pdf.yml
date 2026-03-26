@@ -1,11 +1,11 @@
 name: Scheduled HKO PDF Backup
 on:
   schedule:
-    # 每天在 UTC 03:01, 07:01, 11:01 執行
-    # 對應香港時間 (HKT) 為 11:01, 15:01, 19:01
-    - cron: '01 3,7,11 * * *'
+    # 每天在 UTC 03:05, 07:05, 11:05 執行
+    # 對應香港時間 (HKT) 為 11:05, 15:05, 19:05
+    - cron: '5 3,7,11 * * *'
   workflow_dispatch:
-    
+
 concurrency:
   group: hko-backup
   cancel-in-progress: false
