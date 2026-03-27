@@ -1,8 +1,5 @@
 name: Hourly HKO PDF Backup
 on:
-  schedule:
-    # 每個小時的第 5 分鐘自動執行
-    - cron: '5 * * * *'
   workflow_dispatch:
 
 concurrency:
